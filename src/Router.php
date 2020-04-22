@@ -102,9 +102,10 @@ class Router
         foreach ($this->routes as $key => $route) {
             $regex = $this->compileRoute($route["uri"]);
             $match = preg_match($regex, $currUri, $params) === 1;
+            $currMethod = isset($_POST['_method']) ? strtoupper($_POST['_method']) : $_SERVER['REQUEST_METHOD'];
 
-            if ($match && ( isset($_POST['_method']) ? $_POST['_method'] : $_SERVER['REQUEST_METHOD'] ) == $route["method"]) {
-                
+            if ($match && $currMethod == $route["method"]) {
+                $this->workOnPutAndDeleteMethods($currMethod);
                 if (sizeof($params) > 0) {
                     foreach ($params as $key => $value) {
                         if (is_numeric($key)) {
@@ -116,12 +117,32 @@ class Router
                 $isMatch = true;
                 $action = $route["action"];
                 $this->runAction($action, $params);
+                break;
             }
         }
 
         if (!$isMatch) {
             header("HTTP/1.0 404 Not Found");
             exit();
+        }
+    }
+
+    /**
+     * Check if the current method is PUT or DELETE and convert every variable to POST
+     *
+     * @param [string] $currMethod
+     * @return void
+     */
+    private function workOnPutAndDeleteMethods($currMethod)
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'PUT' || $_SERVER['REQUEST_METHOD'] == 'DELETE') {
+            parse_str(file_get_contents("php://input"), $_PUT);
+            foreach ($_PUT as $key => $value) {
+                unset($_PUT[$key]);
+                $_PUT[str_replace('amp;', '', $key)] = $value;
+            }
+            $_POST = array_merge($_POST, $_PUT);
+            $_REQUEST = array_merge($_REQUEST, $_PUT);
         }
     }
 

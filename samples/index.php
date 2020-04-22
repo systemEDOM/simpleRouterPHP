@@ -13,15 +13,15 @@ $router->post('/', function () {
     echo "post";
 });
 $router->put('/', function () {
-    echo "put";
+    echo "put" . $_POST['name'];
 });
 $router->delete('/', function () {
-    echo "delete";
+    echo "delete" . $_REQUEST['name'];
 });
-$router->get('/users/[i:id]/hi/[i:slug]', function () {
+/*$router->get('/users/[i:id]/hi/[i:slug]', function () {
     echo "params";
 });
-$router->get('/hi/[i:id]/[i:slug]', "HomeController@showHome");
+$router->get('/hi/[i:id]/[i:slug]', "HomeController@showHome");*/
 
 
 $router->match();
