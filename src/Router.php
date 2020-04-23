@@ -225,6 +225,7 @@ class Router
     {
         $path_info = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : "/";
         $path_info = substr($path_info, strlen($this->getBaseUrl()) - 1);
+        $path_info = rtrim($path_info, "/");
         return $path_info;
     }
 }
